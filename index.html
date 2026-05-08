@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AI Readiness Audit — Business Intelligence Report</title>
+<title>AI Readiness Audit -- Business Intelligence Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -80,10 +80,11 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
 .btn-ghost:hover { border-color: var(--rule2); color: var(--ink); }
 
 .cat-nav { display: flex; gap: 0; flex-wrap: nowrap; margin-bottom: 36px; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
-.cat-nav-btn { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 0; background: transparent; color: var(--faint); cursor: pointer; transition: all 0.12s; border: none; border-right: 1px solid var(--rule); flex: 1; text-align: center; }
+.cat-nav-btn { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 0; background: transparent; color: var(--faint); cursor: pointer; transition: all 0.12s; border: none; border-right: 1px solid var(--rule); flex: 1; text-align: center; position: relative; }
 .cat-nav-btn:last-child { border-right: none; }
 .cat-nav-btn.current { background: var(--ink); color: #fff; }
 .cat-nav-btn.complete { color: var(--muted); }
+.cat-nav-btn.complete::after { content: '✓'; position: absolute; top: 2px; right: 4px; font-size: 8px; color: var(--green); }
 
 .question-block { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
 .question-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -97,24 +98,28 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
 .q-radio { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--rule2); flex-shrink: 0; transition: all 0.12s; }
 .q-level { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.4; flex-shrink: 0; }
 
+/* Validation warning */
+.validation-warning { display: none; background: var(--red-bg); border: 1px solid var(--red-dim); border-radius: var(--r); padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--red); }
+.validation-warning.show { display: block; }
+.q-unanswered .q-text { color: var(--red); }
+.q-unanswered .q-options { border: 1px solid var(--red-dim); border-radius: var(--r); padding: 8px; background: var(--red-bg); }
+
 .review-grid { display: grid; gap: 2px; margin-bottom: 36px; }
 .review-card { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--paper2); border: 1px solid var(--rule); border-radius: var(--r); }
 .review-left { display: flex; align-items: center; gap: 14px; }
 .review-icon { font-size: 18px; }
 .review-title { font-size: 13px; font-weight: 500; }
 .review-sub { font-size: 12px; color: var(--muted); }
-.review-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 2px; }
+.review-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 2px; cursor: pointer; }
 .badge-done { background: var(--green-bg); color: var(--green); }
-.badge-pending { background: var(--amber-bg); color: var(--amber); }
+.badge-pending { background: var(--red-bg); color: var(--red); }
 
-/* Email capture on review step */
 .email-capture { background: var(--paper2); border: 1px solid var(--rule); border-radius: var(--r); padding: 24px; margin-bottom: 24px; }
-.email-capture-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.email-capture-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
 .email-capture-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
 .email-row { display: flex; gap: 10px; align-items: flex-end; }
 .email-row .field { flex: 1; }
 
-/* LOADER */
 .loader-wrap { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; gap: 32px; text-align: center; }
 .loader-wrap.active { display: flex; }
 .loader-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; width: 44px; }
@@ -126,7 +131,6 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
 .loader-status { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
 .loader-sub { font-size: 13px; color: var(--muted); }
 
-/* SUCCESS SCREEN */
 .success-wrap { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; text-align: center; gap: 0; }
 .success-wrap.active { display: flex; animation: fadeUp 0.5s ease forwards; }
 .success-icon { width: 64px; height: 64px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 28px; border: 1px solid #c3e6d4; }
@@ -167,18 +171,16 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
 
 <main class="main">
 
-  <!-- HERO -->
   <div class="hero" id="heroSection">
     <div class="hero-kicker">Business Intelligence Tool</div>
-    <h1>Discover your<br/><em>AI readiness</em><br/>score — in minutes.</h1>
-    <p class="hero-body">25 questions. 5 business dimensions. One personalised report delivered straight to your inbox — written by AI, specific to your business.</p>
+    <h1>Discover your<br/><em>AI readiness</em><br/>score in minutes.</h1>
+    <p class="hero-body">25 questions. 5 business dimensions. One personalised report delivered straight to your inbox, written by AI, specific to your business.</p>
     <div class="hero-cta">
-      <button class="btn btn-primary" onclick="startAudit()">Begin the Audit →</button>
+      <button class="btn btn-primary" onclick="startAudit()">Begin the Audit</button>
       <span class="hero-meta">~5 MIN &nbsp;·&nbsp; 25 QUESTIONS &nbsp;·&nbsp; FREE AI REPORT</span>
     </div>
   </div>
 
-  <!-- PROGRESS -->
   <div class="progress-wrap" id="progressWrap" style="display:none;">
     <div class="progress-meta">
       <span id="progressLabel">Step 1 of 7</span>
@@ -187,10 +189,10 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
 
-  <!-- STEP 0: BUSINESS INFO -->
+  <!-- STEP 0 -->
   <div class="step" id="step-0">
     <div class="step-header">
-      <div class="step-number">Step 01 — Business Profile</div>
+      <div class="step-number">Step 01 -- Business Profile</div>
       <div class="step-title">Tell us about your business</div>
       <div class="step-desc">This helps our AI calibrate your audit and personalise every recommendation.</div>
     </div>
@@ -198,74 +200,73 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
       <div class="field"><label>Business Name</label><input type="text" id="bizName" placeholder="e.g. Apex Construction Ltd"/></div>
       <div class="field"><label>Industry</label><select id="bizIndustry">
         <option value="">Select industry...</option>
-        <option>Construction & Real Estate</option><option>Marketing & Advertising</option>
-        <option>Recruitment & HR</option><option>Finance & Accounting</option>
-        <option>Legal Services</option><option>Healthcare & Medical</option>
-        <option>Retail & eCommerce</option><option>Haulage & Logistics</option>
-        <option>Technology & SaaS</option><option>Hospitality & Events</option>
-        <option>Education & Training</option><option>Other</option>
+        <option>Construction and Real Estate</option><option>Marketing and Advertising</option>
+        <option>Recruitment and HR</option><option>Finance and Accounting</option>
+        <option>Legal Services</option><option>Healthcare and Medical</option>
+        <option>Retail and eCommerce</option><option>Haulage and Logistics</option>
+        <option>Technology and SaaS</option><option>Hospitality and Events</option>
+        <option>Education and Training</option><option>Other</option>
       </select></div>
       <div class="field"><label>Company Size</label><select id="bizSize">
         <option value="">Select size...</option>
-        <option>Solo / Freelancer</option><option>2–10 employees</option>
-        <option>11–50 employees</option><option>51–200 employees</option><option>200+ employees</option>
+        <option>Solo / Freelancer</option><option>2 to 10 employees</option>
+        <option>11 to 50 employees</option><option>51 to 200 employees</option><option>200+ employees</option>
       </select></div>
       <div class="field"><label>Annual Revenue (approx.)</label><select id="bizRevenue">
         <option value="">Select range...</option>
-        <option>Under $50k</option><option>$50k – $200k</option>
-        <option>$200k – $1M</option><option>$1M – $5M</option><option>$5M+</option>
+        <option>Under $50k</option><option>$50k to $200k</option>
+        <option>$200k to $1M</option><option>$1M to $5M</option><option>$5M+</option>
       </select></div>
     </div>
     <div class="field-grid single" style="margin-bottom:32px;">
       <div class="field"><label>Your biggest operational challenge right now</label>
       <textarea id="bizChallenge" placeholder="e.g. We spend too much time on manual follow-ups, leads go cold before we respond..."></textarea></div>
     </div>
-    <div class="btn-row"><button class="btn btn-primary" onclick="goToStep(1)">Continue →</button></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="goToStep(1)">Continue</button></div>
   </div>
 
   <!-- QUESTIONS -->
   <div class="step" id="step-questions">
     <div class="step-header">
-      <div class="step-number" id="qStepNum">Step 02 — Category 1 of 5</div>
-      <div class="step-title" id="qStepTitle">Operations & Workflows</div>
+      <div class="step-number" id="qStepNum">Step 02 -- Category 1 of 5</div>
+      <div class="step-title" id="qStepTitle">Operations and Workflows</div>
       <div class="step-desc" id="qStepDesc">How your business manages internal processes and daily operations.</div>
     </div>
     <div class="cat-nav" id="catNav"></div>
+    <div class="validation-warning" id="validationWarning">Please answer all questions in this section before continuing.</div>
     <div id="questionContainer"></div>
     <div class="btn-row" style="margin-top:32px;">
-      <button class="btn btn-ghost" onclick="prevCategory()" id="btnPrevCat">← Back</button>
-      <button class="btn btn-primary" onclick="nextCategory()" id="btnNextCat">Next Category →</button>
+      <button class="btn btn-ghost" onclick="prevCategory()" id="btnPrevCat">Back</button>
+      <button class="btn btn-primary" onclick="nextCategory()" id="btnNextCat">Next Category</button>
     </div>
   </div>
 
-  <!-- REVIEW + EMAIL CAPTURE -->
+  <!-- REVIEW -->
   <div class="step" id="step-review">
     <div class="step-header">
-      <div class="step-number">Step 07 — Review & Submit</div>
+      <div class="step-number">Step 07 -- Review and Submit</div>
       <div class="step-title">Almost done</div>
-      <div class="step-desc">Review your audit below. Enter your email and we'll send your personalised AI report within minutes.</div>
+      <div class="step-desc">All 25 questions answered. Enter your email and we will send your personalised AI report within minutes.</div>
     </div>
     <div class="review-grid" id="reviewGrid"></div>
-
     <div class="email-capture">
       <div class="email-capture-title">Where should we send your report?</div>
-      <div class="email-capture-sub">Your full AI report — with scores, analysis, action plan, and quick wins — will be emailed to you as a beautiful HTML report.</div>
+      <div class="email-capture-sub">Your full AI report with scores, analysis, action plan, and quick wins will be emailed to you.</div>
       <div class="email-row">
         <div class="field">
           <label>Your Email Address</label>
           <input type="email" id="userEmail" placeholder="you@yourcompany.com"/>
         </div>
-        <button class="btn btn-primary" onclick="submitAudit()" id="btnSubmit">Send My Report →</button>
+        <button class="btn btn-primary" onclick="submitAudit()" id="btnSubmit">Send My Report</button>
       </div>
-      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);margin-top:10px;letter-spacing:0.04em;">Already submitted? Enter the same email and we'll resend your report.</p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);margin-top:10px;letter-spacing:0.04em;">Already submitted? Enter the same email and we will resend your report.</p>
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep('questions', 4)">← Edit Answers</button>
+      <button class="btn btn-ghost" onclick="goToStep('questions', 4)">Edit Answers</button>
     </div>
   </div>
 
-  <!-- SUBMITTING LOADER -->
+  <!-- LOADER -->
   <div class="loader-wrap" id="loaderWrap">
     <div class="loader-grid">
       <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
@@ -278,142 +279,189 @@ body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-s
     </div>
   </div>
 
-  <!-- SUCCESS SCREEN -->
+  <!-- SUCCESS -->
   <div class="success-wrap" id="successWrap">
     <div class="success-icon">✓</div>
     <div class="success-title">Your report is on its way</div>
     <div class="success-sub">Our AI is analysing your 25 answers right now. Your personalised report will arrive at:</div>
     <div class="success-email-display" id="successEmail">your@email.com</div>
-    <div class="success-note">Usually arrives within 2–3 minutes · Check your spam folder if you don't see it</div>
+    <div class="success-note">Usually arrives within 2 to 3 minutes · Check your spam folder if you do not see it</div>
     <div class="success-cta">
       <div class="success-cta-title">Want to act on your results faster?</div>
-      <div class="success-cta-sub">Book a free 30-minute strategy call and we'll walk through your report together — and map out exactly where to start.</div>
-      <a href="https://calendly.com/sonwa/consultation" target="_blank" class="success-cta-btn">Book a Free Strategy Call →</a>
+      <div class="success-cta-sub">Book a free 30-minute strategy call and we will walk through your report together and map out exactly where to start.</div>
+      <a href="https://calendly.com/sonwa/consultation" target="_blank" class="success-cta-btn">Book a Free Strategy Call</a>
     </div>
   </div>
 
 </main>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────
-// Replace this with your actual n8n webhook URL
 const WEBHOOK_URL = 'https://n8n.sonwailabs.com/webhook/ai-audit';
-// ────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { id:'operations', icon:'⚙️', title:'Operations & Workflows', desc:'Internal processes, automation, and operational efficiency.',
+  { id:'operations', icon:'⚙️', title:'Operations and Workflows', desc:'Internal processes, automation, and operational efficiency.',
     questions:[
-      { text:'How do you currently handle repetitive internal tasks (data entry, scheduling, reporting)?', options:[
-        {text:'Manually — staff do everything',score:0},{text:'Some spreadsheet/template shortcuts',score:4},
-        {text:'Basic automation tools (Zapier, Make)',score:8},{text:'Advanced automation with AI integration',score:12},
+      { text:'How do you currently handle repetitive internal tasks like data entry, scheduling, and reporting?', options:[
+        {text:'Manually, staff do everything',score:0},
+        {text:'Some spreadsheet and template shortcuts',score:4},
+        {text:'Basic automation tools like Zapier or Make',score:8},
+        {text:'Advanced automation with AI integration',score:12},
         {text:'Fully automated intelligent workflows',score:16}]},
       { text:'How quickly can your team access and act on key business data?', options:[
-        {text:'Data is scattered — takes hours to compile',score:0},{text:'Reports generated weekly/monthly',score:4},
-        {text:'Dashboards exist but need manual refresh',score:8},{text:'Near real-time with some automation',score:12},
+        {text:'Data is scattered and takes hours to compile',score:0},
+        {text:'Reports are generated weekly or monthly',score:4},
+        {text:'Dashboards exist but need manual refresh',score:8},
+        {text:'Near real-time with some automation',score:12},
         {text:'Real-time AI-powered dashboards',score:16}]},
       { text:'How are errors and exceptions in your workflows handled?', options:[
-        {text:'Discovered by customers or randomly',score:0},{text:'Staff check periodically',score:4},
-        {text:'Alerts/notifications set up manually',score:8},{text:'Automated monitoring with alerts',score:12},
+        {text:'Discovered by customers or randomly',score:0},
+        {text:'Staff check periodically',score:4},
+        {text:'Alerts and notifications set up manually',score:8},
+        {text:'Automated monitoring with alerts',score:12},
         {text:'AI detects and self-corrects issues',score:16}]},
-      { text:"How much of your team's time is spent on low-value, repetitive tasks?", options:[
-        {text:'More than 60% of their day',score:0},{text:'40–60% of their day',score:4},
-        {text:'20–40% of their day',score:8},{text:'Less than 20%',score:12},
-        {text:'Under 10% — mostly strategic work',score:16}]},
-      { text:'How do you manage document creation (quotes, contracts, reports)?', options:[
-        {text:'All done from scratch manually',score:0},{text:'Templates exist but manually filled',score:4},
-        {text:'Partially automated with some tools',score:8},{text:'Auto-generated from system data',score:12},
+      { text:'How much of your team time is spent on low-value repetitive tasks?', options:[
+        {text:'More than 60% of their day',score:0},
+        {text:'40 to 60% of their day',score:4},
+        {text:'20 to 40% of their day',score:8},
+        {text:'Less than 20%',score:12},
+        {text:'Under 10%, mostly strategic work',score:16}]},
+      { text:'How do you manage document creation like quotes, contracts, and reports?', options:[
+        {text:'All done from scratch manually',score:0},
+        {text:'Templates exist but still manually filled',score:4},
+        {text:'Partially automated with some tools',score:8},
+        {text:'Auto-generated from system data',score:12},
         {text:'AI drafts, reviews, and sends documents',score:16}]}
     ]},
-  { id:'sales', icon:'📈', title:'Sales & Lead Management', desc:'How you attract, qualify, and convert prospects.',
+  { id:'sales', icon:'📈', title:'Sales and Lead Management', desc:'How you attract, qualify, and convert prospects.',
     questions:[
       { text:'How do you currently qualify and prioritise incoming leads?', options:[
-        {text:'No formal process — gut feel',score:0},{text:'Basic scoring by hand',score:4},
-        {text:'CRM tags and pipeline stages',score:8},{text:'Automated scoring with triggers',score:12},
+        {text:'No formal process, gut feel',score:0},
+        {text:'Basic scoring by hand',score:4},
+        {text:'CRM tags and pipeline stages',score:8},
+        {text:'Automated scoring with triggers',score:12},
         {text:'AI-powered qualification in real-time',score:16}]},
       { text:'What happens when a lead comes in outside business hours?', options:[
-        {text:'Nothing until next business day',score:0},{text:'Auto-reply email sent',score:4},
-        {text:'Chatbot collects basic info',score:8},{text:'AI agent qualifies and books a call',score:12},
-        {text:'Full AI front desk — handles and converts',score:16}]},
-      { text:"How do you follow up with prospects who don't convert immediately?", options:[
-        {text:"Rarely — we forget or don't have time",score:0},{text:'Ad hoc emails from sales staff',score:4},
-        {text:'Scheduled email sequences',score:8},{text:'Automated multi-channel sequences',score:12},
+        {text:'Nothing until next business day',score:0},
+        {text:'Auto-reply email sent',score:4},
+        {text:'Chatbot collects basic info',score:8},
+        {text:'AI agent qualifies and books a call',score:12},
+        {text:'Full AI front desk, handles and converts',score:16}]},
+      { text:'How do you follow up with prospects who do not convert immediately?', options:[
+        {text:'Rarely, we forget or do not have time',score:0},
+        {text:'Ad hoc emails from sales staff',score:4},
+        {text:'Scheduled email sequences',score:8},
+        {text:'Automated multi-channel sequences',score:12},
         {text:'AI-personalised follow-up per prospect',score:16}]},
       { text:'How well do you understand why deals are won or lost?', options:[
-        {text:"We don't track this at all",score:0},{text:'We know roughly but no formal analysis',score:4},
-        {text:'CRM has basic win/loss data',score:8},{text:'Regular review with structured analysis',score:12},
+        {text:'We do not track this at all',score:0},
+        {text:'We know roughly but no formal analysis',score:4},
+        {text:'CRM has basic win/loss data',score:8},
+        {text:'Regular review with structured analysis',score:12},
         {text:'AI analyses patterns and suggests improvements',score:16}]},
       { text:'How personalised is your outreach and proposals?', options:[
-        {text:'Generic — same message to everyone',score:0},{text:'We customise the name/company manually',score:4},
-        {text:'Segmented by industry or persona',score:8},{text:'Personalised based on CRM data',score:12},
+        {text:'Generic, same message to everyone',score:0},
+        {text:'We customise the name and company manually',score:4},
+        {text:'Segmented by industry or persona',score:8},
+        {text:'Personalised based on CRM data',score:12},
         {text:'AI generates personalised messaging per prospect',score:16}]}
     ]},
   { id:'customer', icon:'💬', title:'Customer Experience', desc:'How you serve, retain, and delight your customers.',
     questions:[
       { text:'How do customers get support or answers to their questions?', options:[
-        {text:'Only phone/email, slow response times',score:0},{text:'Email with FAQ page',score:4},
-        {text:'Live chat or basic chatbot on site',score:8},{text:'AI chatbot handles most queries 24/7',score:12},
-        {text:'Omnichannel AI (chat, voice, email, SMS)',score:16}]},
+        {text:'Only phone and email with slow response times',score:0},
+        {text:'Email with FAQ page',score:4},
+        {text:'Live chat or basic chatbot on site',score:8},
+        {text:'AI chatbot handles most queries 24/7',score:12},
+        {text:'Omnichannel AI across chat, voice, email, and SMS',score:16}]},
       { text:'How do you collect and act on customer feedback?', options:[
-        {text:"We don't collect feedback formally",score:0},{text:'Occasional surveys sent manually',score:4},
-        {text:'Regular surveys with basic reporting',score:8},{text:'Automated feedback with trend analysis',score:12},
+        {text:'We do not collect feedback formally',score:0},
+        {text:'Occasional surveys sent manually',score:4},
+        {text:'Regular surveys with basic reporting',score:8},
+        {text:'Automated feedback with trend analysis',score:12},
         {text:'AI sentiment analysis across all touchpoints',score:16}]},
-      { text:'How personalised is your customer communication post-sale?', options:[
-        {text:'Same emails sent to everyone',score:0},{text:'Segmented by product/service type',score:4},
-        {text:'Personalised based on purchase history',score:8},{text:'Behaviour-triggered personalised journeys',score:12},
+      { text:'How personalised is your customer communication after the sale?', options:[
+        {text:'Same emails sent to everyone',score:0},
+        {text:'Segmented by product or service type',score:4},
+        {text:'Personalised based on purchase history',score:8},
+        {text:'Behaviour-triggered personalised journeys',score:12},
         {text:'AI-driven hyper-personalised experiences',score:16}]},
       { text:'How do you handle customer onboarding after a sale?', options:[
-        {text:'Ad hoc — depends on the staff member',score:0},{text:'A welcome email is sent',score:4},
-        {text:'Structured onboarding checklist/process',score:8},{text:'Automated onboarding sequence',score:12},
+        {text:'Ad hoc, depends on the staff member',score:0},
+        {text:'A welcome email is sent',score:4},
+        {text:'Structured onboarding checklist or process',score:8},
+        {text:'Automated onboarding sequence',score:12},
         {text:'AI-guided onboarding adapts to each customer',score:16}]},
       { text:'How proactively do you identify at-risk customers before they churn?', options:[
-        {text:'We find out when they cancel',score:0},{text:'Gut feel from account managers',score:4},
-        {text:'Manual check-in calls scheduled',score:8},{text:'Engagement tracking with alerts',score:12},
+        {text:'We find out when they cancel',score:0},
+        {text:'Gut feel from account managers',score:4},
+        {text:'Manual check-in calls scheduled',score:8},
+        {text:'Engagement tracking with alerts',score:12},
         {text:'AI predicts churn and triggers interventions',score:16}]}
     ]},
-  { id:'marketing', icon:'📣', title:'Marketing & Content', desc:'How you generate awareness, content, and inbound leads.',
+  { id:'marketing', icon:'📣', title:'Marketing and Content', desc:'How you generate awareness, content, and inbound leads.',
     questions:[
-      { text:'How do you produce marketing content (blogs, social, emails)?', options:[
-        {text:'Rarely — we have no content strategy',score:0},{text:'Manually when we have time',score:4},
-        {text:'Regular content but fully manual',score:8},{text:'AI assists with drafts and ideation',score:12},
+      { text:'How do you produce marketing content like blogs, social posts, and emails?', options:[
+        {text:'Rarely, we have no content strategy',score:0},
+        {text:'Manually when we have time',score:4},
+        {text:'Regular content but fully manual',score:8},
+        {text:'AI assists with drafts and ideation',score:12},
         {text:'AI-powered content pipeline, mostly automated',score:16}]},
       { text:'How do you decide what marketing campaigns to run or where to invest?', options:[
-        {text:'Instinct and past habit',score:0},{text:'Basic channel metrics reviewed occasionally',score:4},
-        {text:'Regular analytics review',score:8},{text:'Data-driven with A/B testing',score:12},
+        {text:'Instinct and past habit',score:0},
+        {text:'Basic channel metrics reviewed occasionally',score:4},
+        {text:'Regular analytics review',score:8},
+        {text:'Data-driven with A/B testing',score:12},
         {text:'AI recommends campaigns based on performance data',score:16}]},
       { text:'How do you handle lead nurturing through email or ads?', options:[
-        {text:"We don't have nurture sequences",score:0},{text:'Occasional newsletters only',score:4},
-        {text:'Email sequences for new leads',score:8},{text:'Multi-step nurture with segmentation',score:12},
+        {text:'We do not have nurture sequences',score:0},
+        {text:'Occasional newsletters only',score:4},
+        {text:'Email sequences for new leads',score:8},
+        {text:'Multi-step nurture with segmentation',score:12},
         {text:'AI-orchestrated cross-channel nurture journeys',score:16}]},
       { text:'How well do you track which channels actually drive revenue?', options:[
-        {text:'We have no tracking in place',score:0},{text:'We know our traffic sources roughly',score:4},
-        {text:'UTMs and basic conversion tracking',score:8},{text:'Multi-touch attribution model',score:12},
+        {text:'We have no tracking in place',score:0},
+        {text:'We know our traffic sources roughly',score:4},
+        {text:'UTMs and basic conversion tracking',score:8},
+        {text:'Multi-touch attribution model',score:12},
         {text:'AI-powered revenue attribution across channels',score:16}]},
       { text:'How do you repurpose content across channels?', options:[
-        {text:"We don't repurpose — each piece is one-off",score:0},{text:'Occasionally repost manually',score:4},
-        {text:'Some cross-posting with minor edits',score:8},{text:'Structured repurposing workflow',score:12},
+        {text:'We do not repurpose, each piece is one-off',score:0},
+        {text:'Occasionally repost manually',score:4},
+        {text:'Some cross-posting with minor edits',score:8},
+        {text:'Structured repurposing workflow',score:12},
         {text:'AI reformats and distributes automatically',score:16}]}
     ]},
-  { id:'strategy', icon:'🧠', title:'Strategy & AI Readiness', desc:"Your team's awareness, data infrastructure, and adoption readiness.",
+  { id:'strategy', icon:'🧠', title:'Strategy and AI Readiness', desc:'Your team awareness, data infrastructure, and adoption readiness.',
     questions:[
-      { text:"How would you describe your team's current comfort level with AI tools?", options:[
-        {text:'Skeptical or unaware of AI tools',score:0},{text:"Curious but haven't tried much",score:4},
-        {text:'A few people use AI tools occasionally',score:8},{text:'AI tools used regularly across the team',score:12},
-        {text:'AI-first culture — embedded in all processes',score:16}]},
+      { text:'How would you describe your team current comfort level with AI tools?', options:[
+        {text:'Skeptical or unaware of AI tools',score:0},
+        {text:'Curious but have not tried much',score:4},
+        {text:'A few people use AI tools occasionally',score:8},
+        {text:'AI tools used regularly across the team',score:12},
+        {text:'AI-first culture, embedded in all processes',score:16}]},
       { text:'How is your business data currently stored and organised?', options:[
-        {text:'Scattered — emails, spreadsheets, paper files',score:0},{text:'Spreadsheets with some structure',score:4},
-        {text:'CRM or database but not well-maintained',score:8},{text:'Clean, organised CRM/database',score:12},
+        {text:'Scattered across emails, spreadsheets, and paper files',score:0},
+        {text:'Spreadsheets with some structure',score:4},
+        {text:'CRM or database but not well-maintained',score:8},
+        {text:'Clean, organised CRM or database',score:12},
         {text:'Structured data infrastructure ready for AI',score:16}]},
       { text:'Do you have a defined strategy or roadmap for AI adoption?', options:[
-        {text:'No strategy — reactive to trends',score:0},{text:"We've discussed it informally",score:4},
-        {text:'Some initiatives but no formal plan',score:8},{text:'Documented roadmap in progress',score:12},
+        {text:'No strategy, reactive to trends',score:0},
+        {text:'We have discussed it informally',score:4},
+        {text:'Some initiatives but no formal plan',score:8},
+        {text:'Documented roadmap in progress',score:12},
         {text:'Clear AI strategy with KPIs and ownership',score:16}]},
-      { text:'How well protected is your business data (security, backups, compliance)?', options:[
-        {text:"We haven't thought seriously about this",score:0},{text:'Basic passwords and some backups',score:4},
-        {text:'Standard security measures in place',score:8},{text:'Regular audits and documented policies',score:12},
+      { text:'How well protected is your business data across security, backups, and compliance?', options:[
+        {text:'We have not thought seriously about this',score:0},
+        {text:'Basic passwords and some backups',score:4},
+        {text:'Standard security measures in place',score:8},
+        {text:'Regular audits and documented policies',score:12},
         {text:'Enterprise-grade security and full compliance',score:16}]},
       { text:'How do you currently measure ROI on technology investments?', options:[
-        {text:"We don't formally track ROI on tech",score:0},{text:"Rough sense of whether it's working",score:4},
-        {text:'Basic metrics tracked manually',score:8},{text:'Defined KPIs reviewed quarterly',score:12},
+        {text:'We do not formally track ROI on tech',score:0},
+        {text:'Rough sense of whether it is working',score:4},
+        {text:'Basic metrics tracked manually',score:8},
+        {text:'Defined KPIs reviewed quarterly',score:12},
         {text:'AI-assisted ROI modelling and forecasting',score:16}]}
     ]}
 ];
@@ -454,18 +502,19 @@ function updateProgress(step,total,pct) {
 
 function renderCategory(catIdx) {
   const cat=CATEGORIES[catIdx];
-  document.getElementById('qStepNum').textContent=`Step ${String(catIdx+2).padStart(2,'0')} — Category ${catIdx+1} of 5`;
+  document.getElementById('qStepNum').textContent=`Step ${String(catIdx+2).padStart(2,'0')} -- Category ${catIdx+1} of 5`;
   document.getElementById('qStepTitle').textContent=cat.title;
   document.getElementById('qStepDesc').textContent=cat.desc;
+  document.getElementById('validationWarning').classList.remove('show');
   document.getElementById('catNav').innerHTML=CATEGORIES.map((c,i)=>{
     const done=isCategoryComplete(i),cur=i===catIdx;
-    return `<button class="cat-nav-btn ${cur?'current':''} ${done&&!cur?'complete':''}" onclick="jumpToCategory(${i})">${c.icon}</button>`;
+    return `<button class="cat-nav-btn ${cur?'current':''} ${done&&!cur?'complete':''}" onclick="jumpToCategory(${i})" title="${c.title}">${c.icon}</button>`;
   }).join('');
   const levels=['○○○○','●○○○','●●○○','●●●○','●●●●'];
   document.getElementById('questionContainer').innerHTML=cat.questions.map((q,qIdx)=>{
     const key=`${cat.id}_${qIdx}`;
-    return `<div class="question-block">
-      <div class="q-num">Q${qIdx+1} / 5</div>
+    return `<div class="question-block" id="qblock_${cat.id}_${qIdx}">
+      <div class="q-num">Q${qIdx+1} of 5</div>
       <div class="q-text">${q.text}</div>
       <div class="q-options">${q.options.map((opt,oIdx)=>
         `<div class="q-option ${state.answers[key]===opt.score?'selected':''}" onclick="selectAnswer('${cat.id}',${qIdx},${opt.score},this)">
@@ -473,23 +522,62 @@ function renderCategory(catIdx) {
         </div>`).join('')}</div></div>`;
   }).join('');
   document.getElementById('btnPrevCat').style.display=catIdx===0?'none':'inline-flex';
-  document.getElementById('btnNextCat').textContent=catIdx===CATEGORIES.length-1?'Review & Submit →':'Next Category →';
+  document.getElementById('btnNextCat').textContent=catIdx===CATEGORIES.length-1?'Review and Submit':'Next Category';
 }
 
 function selectAnswer(catId,qIdx,score,el) {
   state.answers[`${catId}_${qIdx}`]=score;
   el.closest('.q-options').querySelectorAll('.q-option').forEach(o=>o.classList.remove('selected'));
   el.classList.add('selected');
+  // Remove unanswered highlight if it was flagged
+  const block=document.getElementById(`qblock_${catId}_${qIdx}`);
+  if(block) block.classList.remove('q-unanswered');
+  // Hide warning if all answered now
+  if(isCategoryComplete(state.currentCat)) document.getElementById('validationWarning').classList.remove('show');
 }
+
 function jumpToCategory(idx){state.currentCat=idx;renderCategory(idx);}
-function isCategoryComplete(catIdx){return CATEGORIES[catIdx].questions.every((_,qIdx)=>state.answers[`${CATEGORIES[catIdx].id}_${qIdx}`]!==undefined);}
+
+function isCategoryComplete(catIdx){
+  return CATEGORIES[catIdx].questions.every((_,qIdx)=>state.answers[`${CATEGORIES[catIdx].id}_${qIdx}`]!==undefined);
+}
+
 function nextCategory(){
-  if(state.currentCat<CATEGORIES.length-1){state.currentCat++;renderCategory(state.currentCat);window.scrollTo(0,0);updateProgress(2+state.currentCat,7,Math.round(((2+state.currentCat)/7)*100));}
-  else{goToStep('review');window.scrollTo(0,0);}
+  const cat=CATEGORIES[state.currentCat];
+  // Check all questions answered
+  const unanswered=cat.questions.map((_,qIdx)=>`${cat.id}_${qIdx}`).filter(key=>state.answers[key]===undefined);
+  if(unanswered.length>0){
+    // Show warning and highlight unanswered
+    document.getElementById('validationWarning').classList.add('show');
+    // Highlight each unanswered block
+    cat.questions.forEach((_,qIdx)=>{
+      const key=`${cat.id}_${qIdx}`;
+      const block=document.getElementById(`qblock_${cat.id}_${qIdx}`);
+      if(block){
+        if(state.answers[key]===undefined) block.classList.add('q-unanswered');
+        else block.classList.remove('q-unanswered');
+      }
+    });
+    // Scroll to first unanswered
+    const firstKey=unanswered[0];
+    const firstBlock=document.getElementById(`qblock_${firstKey}`);
+    if(firstBlock) firstBlock.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  document.getElementById('validationWarning').classList.remove('show');
+  if(state.currentCat<CATEGORIES.length-1){
+    state.currentCat++;renderCategory(state.currentCat);window.scrollTo(0,0);
+    updateProgress(2+state.currentCat,7,Math.round(((2+state.currentCat)/7)*100));
+  } else {
+    goToStep('review');window.scrollTo(0,0);
+  }
 }
+
 function prevCategory(){
-  if(state.currentCat>0){state.currentCat--;renderCategory(state.currentCat);window.scrollTo(0,0);}else goToStep(0);
+  if(state.currentCat>0){state.currentCat--;renderCategory(state.currentCat);window.scrollTo(0,0);}
+  else goToStep(0);
 }
+
 function getCategoryScore(catIdx){return CATEGORIES[catIdx].questions.reduce((t,_,qIdx)=>t+(state.answers[`${CATEGORIES[catIdx].id}_${qIdx}`]||0),0);}
 function getCategoryMax(){return 80;}
 function calcTotalScore(){return Math.round((CATEGORIES.reduce((t,_,i)=>t+getCategoryScore(i),0)/(CATEGORIES.length*getCategoryMax()))*100);}
@@ -503,53 +591,45 @@ function getTier(score){
 function renderReview(){
   document.getElementById('reviewGrid').innerHTML=CATEGORIES.map((cat,i)=>{
     const s=getCategoryScore(i),pct=Math.round((s/getCategoryMax())*100),done=isCategoryComplete(i);
-    return `<div class="review-card"><div class="review-left"><div class="review-icon">${cat.icon}</div><div><div class="review-title">${cat.title}</div><div class="review-sub">${s}/${getCategoryMax()} pts · ${pct}%</div></div></div><div class="review-badge ${done?'badge-done':'badge-pending'}">${done?'✓ Complete':'Incomplete'}</div></div>`;
+    return `<div class="review-card">
+      <div class="review-left"><div class="review-icon">${cat.icon}</div>
+      <div><div class="review-title">${cat.title}</div>
+      <div class="review-sub">${s}/${getCategoryMax()} pts · ${pct}%</div></div></div>
+      <div class="review-badge ${done?'badge-done':'badge-pending'}" onclick="${done?'':''}">${done?'✓ Complete':'Incomplete'}</div>
+    </div>`;
   }).join('');
 }
 
 async function submitAudit() {
-  const email = document.getElementById('userEmail').value.trim();
-  if (!email || !email.includes('@')) {
-    document.getElementById('userEmail').focus();
+  const email=document.getElementById('userEmail').value.trim();
+  if(!email||!email.includes('@')){
     document.getElementById('userEmail').style.borderColor='var(--red)';
+    document.getElementById('userEmail').focus();
     return;
   }
   document.getElementById('userEmail').style.borderColor='';
 
-  // Build payload
-  const score = calcTotalScore();
-  const tier = getTier(score);
-
-  // Build answers summary string for Claude
-  const answersSummary = CATEGORIES.map(cat =>
+  const score=calcTotalScore(),tier=getTier(score);
+  const answersSummary=CATEGORIES.map(cat=>
     cat.questions.map((q,qIdx)=>{
-      const ans = state.answers[`${cat.id}_${qIdx}`]||0;
-      const opt = q.options.find(o=>o.score===ans);
-      return `[${cat.title}] ${q.text.substring(0,55)}... → ${opt?opt.text:'Not answered'} (${ans}/16)`;
-    }).join('\n')
-  ).join('\n');
+      const ans=state.answers[`${cat.id}_${qIdx}`]||0;
+      const opt=q.options.find(o=>o.score===ans);
+      return `[${cat.title}] ${q.text.substring(0,55)}... > ${opt?opt.text:'Not answered'} (${ans}/16)`;
+    }).join('\n')).join('\n');
 
-  // Build category % scores
-  const scores = {};
-  CATEGORIES.forEach(cat=>{
-    const s=getCategoryScore(CATEGORIES.indexOf(cat));
-    scores[cat.id]=Math.round((s/getCategoryMax())*100);
-  });
+  const scores={};
+  CATEGORIES.forEach((cat,i)=>{scores[cat.id]=Math.round((getCategoryScore(i)/getCategoryMax())*100);});
 
-  const payload = {
+  const payload={
     email,
-    bizName: document.getElementById('bizName').value||'Your Business',
-    bizIndustry: document.getElementById('bizIndustry').value||'General Business',
-    bizSize: document.getElementById('bizSize').value||'Not specified',
-    bizRevenue: document.getElementById('bizRevenue').value||'Not specified',
-    bizChallenge: document.getElementById('bizChallenge').value||'Not specified',
-    totalScore: score,
-    tier,
-    scores,
-    answersSummary
+    bizName:document.getElementById('bizName').value||'Your Business',
+    bizIndustry:document.getElementById('bizIndustry').value||'General Business',
+    bizSize:document.getElementById('bizSize').value||'Not specified',
+    bizRevenue:document.getElementById('bizRevenue').value||'Not specified',
+    bizChallenge:document.getElementById('bizChallenge').value||'Not specified',
+    totalScore:score,tier,scores,answersSummary
   };
 
-  // Show loader
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
   document.getElementById('loaderWrap').classList.add('active');
   updateProgress(7,7,99);
@@ -569,27 +649,15 @@ async function submitAudit() {
   },1500);
 
   try {
-    const response = await fetch(WEBHOOK_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ body: payload })
-    });
-    clearInterval(interval);
-    // Show success regardless of response (n8n processes async)
-    document.getElementById('loaderWrap').classList.remove('active');
-    document.getElementById('successWrap').classList.add('active');
-    document.getElementById('successEmail').textContent=email;
-    updateProgress(7,7,100);
-    window.scrollTo(0,0);
-  } catch(err) {
-    clearInterval(interval);
-    // Still show success — n8n may have received it even if response failed
-    document.getElementById('loaderWrap').classList.remove('active');
-    document.getElementById('successWrap').classList.add('active');
-    document.getElementById('successEmail').textContent=email;
-    updateProgress(7,7,100);
-    window.scrollTo(0,0);
-  }
+    await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:payload})});
+  } catch(e){}
+
+  clearInterval(interval);
+  document.getElementById('loaderWrap').classList.remove('active');
+  document.getElementById('successWrap').classList.add('active');
+  document.getElementById('successEmail').textContent=email;
+  updateProgress(7,7,100);
+  window.scrollTo(0,0);
 }
 </script>
 </body>
