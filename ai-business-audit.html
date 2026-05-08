@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Readiness Audit — Business Intelligence Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --paper: #faf8f4;
+  --paper2: #ffffff;
+  --paper3: #f3f0ea;
+  --ink: #1c1814;
+  --ink2: #2e2820;
+  --rule: #ddd8cf;
+  --rule2: #c8c0b2;
+  --red: #b5291c;
+  --red-bg: #fdf0ee;
+  --red-dim: #e8a09a;
+  --muted: #7a6e62;
+  --faint: #b0a898;
+  --green: #1e6e45;
+  --green-bg: #eef6f1;
+  --amber: #8a5a00;
+  --amber-bg: #fdf5e6;
+  --r: 2px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.65; min-height: 100vh; }
+
+.header { border-bottom: 1px solid var(--ink); padding: 0 48px; display: flex; align-items: stretch; justify-content: space-between; position: sticky; top: 0; background: var(--paper); z-index: 100; height: 56px; }
+.logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 10px; letter-spacing: -0.01em; }
+.logo-mark { width: 24px; height: 24px; background: var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-mark svg { width: 12px; height: 12px; }
+.header-tag { display: flex; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); border-left: 1px solid var(--rule); padding-left: 20px; }
+
+.main { max-width: 800px; margin: 0 auto; padding: 56px 48px; }
+
+.hero { margin-bottom: 72px; }
+.hero-kicker { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+.hero-kicker::before { content: ''; display: block; width: 24px; height: 1px; background: var(--red); }
+.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 6vw, 72px); font-weight: 600; line-height: 1.05; color: var(--ink); margin-bottom: 24px; letter-spacing: -0.02em; }
+.hero h1 em { font-style: italic; color: var(--red); }
+.hero-body { color: var(--muted); font-size: 15px; max-width: 480px; line-height: 1.7; margin-bottom: 36px; }
+.hero-cta { display: flex; align-items: center; gap: 20px; }
+.hero-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--faint); letter-spacing: 0.08em; }
+
+.progress-wrap { margin-bottom: 52px; }
+.progress-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+.progress-track { height: 1px; background: var(--rule); overflow: visible; position: relative; }
+.progress-fill { height: 1px; background: var(--ink); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; }
+.progress-fill::after { content: ''; position: absolute; right: -3px; top: -3px; width: 7px; height: 7px; background: var(--ink); border-radius: 50%; }
+
+.step { display: none; animation: fadeUp 0.35s ease forwards; }
+.step.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+.step-header { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+.step-number { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); margin-bottom: 14px; }
+.step-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; line-height: 1.15; }
+.step-desc { color: var(--muted); font-size: 14px; }
+
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+.field-grid.single { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.field input, .field select, .field textarea { background: var(--paper2); border: 1px solid var(--rule); border-radius: var(--r); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 13px; padding: 10px 12px; outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
+.field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--ink2); }
+.field textarea { resize: vertical; min-height: 76px; }
+::placeholder { color: var(--faint); }
+
+.btn-row { display: flex; gap: 10px; align-items: center; padding-top: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 11px 22px; border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary:hover { background: var(--ink2); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--rule); }
+.btn-ghost:hover { border-color: var(--rule2); color: var(--ink); }
+
+.cat-nav { display: flex; gap: 0; flex-wrap: nowrap; margin-bottom: 36px; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.cat-nav-btn { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 0; background: transparent; color: var(--faint); cursor: pointer; transition: all 0.12s; border: none; border-right: 1px solid var(--rule); flex: 1; text-align: center; }
+.cat-nav-btn:last-child { border-right: none; }
+.cat-nav-btn.current { background: var(--ink); color: #fff; }
+.cat-nav-btn.complete { color: var(--muted); }
+
+.question-block { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
+.question-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.q-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 6px; }
+.q-text { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 14px; line-height: 1.5; }
+.q-options { display: grid; gap: 6px; }
+.q-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--paper2); border: 1px solid var(--rule); border-radius: var(--r); cursor: pointer; transition: all 0.12s; font-size: 13px; color: var(--muted); }
+.q-option:hover { border-color: var(--rule2); color: var(--ink); }
+.q-option.selected { border-color: var(--ink); background: var(--ink); color: #fff; }
+.q-option.selected .q-radio { border-color: #fff; background: #fff; }
+.q-radio { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--rule2); flex-shrink: 0; transition: all 0.12s; }
+.q-level { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.4; flex-shrink: 0; }
+
+.review-grid { display: grid; gap: 2px; margin-bottom: 36px; }
+.review-card { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--paper2); border: 1px solid var(--rule); border-radius: var(--r); }
+.review-left { display: flex; align-items: center; gap: 14px; }
+.review-icon { font-size: 18px; }
+.review-title { font-size: 13px; font-weight: 500; }
+.review-sub { font-size: 12px; color: var(--muted); }
+.review-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 2px; }
+.badge-done { background: var(--green-bg); color: var(--green); }
+.badge-pending { background: var(--amber-bg); color: var(--amber); }
+
+/* Email capture on review step */
+.email-capture { background: var(--paper2); border: 1px solid var(--rule); border-radius: var(--r); padding: 24px; margin-bottom: 24px; }
+.email-capture-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.email-capture-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.email-row { display: flex; gap: 10px; align-items: flex-end; }
+.email-row .field { flex: 1; }
+
+/* LOADER */
+.loader-wrap { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; gap: 32px; text-align: center; }
+.loader-wrap.active { display: flex; }
+.loader-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; width: 44px; }
+.loader-dot { width: 13px; height: 13px; background: var(--rule); border-radius: 2px; animation: dotPulse 1.2s ease-in-out infinite; }
+.loader-dot:nth-child(1){animation-delay:0s} .loader-dot:nth-child(2){animation-delay:0.1s} .loader-dot:nth-child(3){animation-delay:0.2s}
+.loader-dot:nth-child(4){animation-delay:0.15s} .loader-dot:nth-child(5){animation-delay:0.25s;background:var(--ink)} .loader-dot:nth-child(6){animation-delay:0.3s}
+.loader-dot:nth-child(7){animation-delay:0.2s} .loader-dot:nth-child(8){animation-delay:0.35s} .loader-dot:nth-child(9){animation-delay:0.4s}
+@keyframes dotPulse { 0%,100%{opacity:0.2;transform:scale(0.9)} 50%{opacity:1;transform:scale(1)} }
+.loader-status { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
+.loader-sub { font-size: 13px; color: var(--muted); }
+
+/* SUCCESS SCREEN */
+.success-wrap { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; text-align: center; gap: 0; }
+.success-wrap.active { display: flex; animation: fadeUp 0.5s ease forwards; }
+.success-icon { width: 64px; height: 64px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 28px; border: 1px solid #c3e6d4; }
+.success-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 12px; }
+.success-sub { font-size: 15px; color: var(--muted); max-width: 420px; line-height: 1.7; margin-bottom: 8px; }
+.success-email-display { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink); background: var(--paper2); border: 1px solid var(--rule); padding: 6px 16px; border-radius: 2px; margin-bottom: 32px; }
+.success-note { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--faint); letter-spacing: 0.06em; margin-bottom: 32px; }
+.success-cta { background: var(--red-bg); border: 1px solid var(--red-dim); border-radius: var(--r); padding: 24px 32px; max-width: 480px; width: 100%; }
+.success-cta-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.success-cta-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.success-cta-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--red); color: #fff; font-size: 13px; font-weight: 500; padding: 11px 22px; border-radius: var(--r); text-decoration: none; transition: background 0.15s; }
+.success-cta-btn:hover { background: #9a2218; }
+
+@media(max-width:600px){
+  .main{padding:28px 20px;}
+  .header{padding:0 20px;}
+  .field-grid{grid-template-columns:1fr;}
+  .email-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="4" height="4" fill="white" opacity="0.9"/>
+        <rect x="7" y="1" width="4" height="4" fill="white" opacity="0.4"/>
+        <rect x="1" y="7" width="4" height="4" fill="white" opacity="0.4"/>
+        <rect x="7" y="7" width="4" height="4" fill="white" opacity="0.9"/>
+      </svg>
+    </div>
+    AuditAI
+  </div>
+  <div class="header-tag" id="headerStatus">AI Readiness Assessment</div>
+</header>
+
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-kicker">Business Intelligence Tool</div>
+    <h1>Discover your<br/><em>AI readiness</em><br/>score — in minutes.</h1>
+    <p class="hero-body">25 questions. 5 business dimensions. One personalised report delivered straight to your inbox — written by AI, specific to your business.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="startAudit()">Begin the Audit →</button>
+      <span class="hero-meta">~5 MIN &nbsp;·&nbsp; 25 QUESTIONS &nbsp;·&nbsp; FREE AI REPORT</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap" style="display:none;">
+    <div class="progress-meta">
+      <span id="progressLabel">Step 1 of 7</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- STEP 0: BUSINESS INFO -->
+  <div class="step" id="step-0">
+    <div class="step-header">
+      <div class="step-number">Step 01 — Business Profile</div>
+      <div class="step-title">Tell us about your business</div>
+      <div class="step-desc">This helps our AI calibrate your audit and personalise every recommendation.</div>
+    </div>
+    <div class="field-grid">
+      <div class="field"><label>Business Name</label><input type="text" id="bizName" placeholder="e.g. Apex Construction Ltd"/></div>
+      <div class="field"><label>Industry</label><select id="bizIndustry">
+        <option value="">Select industry...</option>
+        <option>Construction & Real Estate</option><option>Marketing & Advertising</option>
+        <option>Recruitment & HR</option><option>Finance & Accounting</option>
+        <option>Legal Services</option><option>Healthcare & Medical</option>
+        <option>Retail & eCommerce</option><option>Haulage & Logistics</option>
+        <option>Technology & SaaS</option><option>Hospitality & Events</option>
+        <option>Education & Training</option><option>Other</option>
+      </select></div>
+      <div class="field"><label>Company Size</label><select id="bizSize">
+        <option value="">Select size...</option>
+        <option>Solo / Freelancer</option><option>2–10 employees</option>
+        <option>11–50 employees</option><option>51–200 employees</option><option>200+ employees</option>
+      </select></div>
+      <div class="field"><label>Annual Revenue (approx.)</label><select id="bizRevenue">
+        <option value="">Select range...</option>
+        <option>Under $50k</option><option>$50k – $200k</option>
+        <option>$200k – $1M</option><option>$1M – $5M</option><option>$5M+</option>
+      </select></div>
+    </div>
+    <div class="field-grid single" style="margin-bottom:32px;">
+      <div class="field"><label>Your biggest operational challenge right now</label>
+      <textarea id="bizChallenge" placeholder="e.g. We spend too much time on manual follow-ups, leads go cold before we respond..."></textarea></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="goToStep(1)">Continue →</button></div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="step" id="step-questions">
+    <div class="step-header">
+      <div class="step-number" id="qStepNum">Step 02 — Category 1 of 5</div>
+      <div class="step-title" id="qStepTitle">Operations & Workflows</div>
+      <div class="step-desc" id="qStepDesc">How your business manages internal processes and daily operations.</div>
+    </div>
+    <div class="cat-nav" id="catNav"></div>
+    <div id="questionContainer"></div>
+    <div class="btn-row" style="margin-top:32px;">
+      <button class="btn btn-ghost" onclick="prevCategory()" id="btnPrevCat">← Back</button>
+      <button class="btn btn-primary" onclick="nextCategory()" id="btnNextCat">Next Category →</button>
+    </div>
+  </div>
+
+  <!-- REVIEW + EMAIL CAPTURE -->
+  <div class="step" id="step-review">
+    <div class="step-header">
+      <div class="step-number">Step 07 — Review & Submit</div>
+      <div class="step-title">Almost done</div>
+      <div class="step-desc">Review your audit below. Enter your email and we'll send your personalised AI report within minutes.</div>
+    </div>
+    <div class="review-grid" id="reviewGrid"></div>
+
+    <div class="email-capture">
+      <div class="email-capture-title">Where should we send your report?</div>
+      <div class="email-capture-sub">Your full AI report — with scores, analysis, action plan, and quick wins — will be emailed to you as a beautiful HTML report.</div>
+      <div class="email-row">
+        <div class="field">
+          <label>Your Email Address</label>
+          <input type="email" id="userEmail" placeholder="you@yourcompany.com"/>
+        </div>
+        <button class="btn btn-primary" onclick="submitAudit()" id="btnSubmit">Send My Report →</button>
+      </div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);margin-top:10px;letter-spacing:0.04em;">Already submitted? Enter the same email and we'll resend your report.</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goToStep('questions', 4)">← Edit Answers</button>
+    </div>
+  </div>
+
+  <!-- SUBMITTING LOADER -->
+  <div class="loader-wrap" id="loaderWrap">
+    <div class="loader-grid">
+      <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
+      <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
+      <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
+    </div>
+    <div>
+      <div class="loader-status" id="loaderStatus">Submitting your audit</div>
+      <div class="loader-sub" id="loaderText">Sending your answers to our AI engine...</div>
+    </div>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-wrap" id="successWrap">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Your report is on its way</div>
+    <div class="success-sub">Our AI is analysing your 25 answers right now. Your personalised report will arrive at:</div>
+    <div class="success-email-display" id="successEmail">your@email.com</div>
+    <div class="success-note">Usually arrives within 2–3 minutes · Check your spam folder if you don't see it</div>
+    <div class="success-cta">
+      <div class="success-cta-title">Want to act on your results faster?</div>
+      <div class="success-cta-sub">Book a free 30-minute strategy call and we'll walk through your report together — and map out exactly where to start.</div>
+      <a href="https://calendly.com/sonwa/consultation" target="_blank" class="success-cta-btn">Book a Free Strategy Call →</a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────
+// Replace this with your actual n8n webhook URL
+const WEBHOOK_URL = 'https://n8n.sonwailabs.com/webhook/ai-audit';
+// ────────────────────────────────────────────────────
+
+const CATEGORIES = [
+  { id:'operations', icon:'⚙️', title:'Operations & Workflows', desc:'Internal processes, automation, and operational efficiency.',
+    questions:[
+      { text:'How do you currently handle repetitive internal tasks (data entry, scheduling, reporting)?', options:[
+        {text:'Manually — staff do everything',score:0},{text:'Some spreadsheet/template shortcuts',score:4},
+        {text:'Basic automation tools (Zapier, Make)',score:8},{text:'Advanced automation with AI integration',score:12},
+        {text:'Fully automated intelligent workflows',score:16}]},
+      { text:'How quickly can your team access and act on key business data?', options:[
+        {text:'Data is scattered — takes hours to compile',score:0},{text:'Reports generated weekly/monthly',score:4},
+        {text:'Dashboards exist but need manual refresh',score:8},{text:'Near real-time with some automation',score:12},
+        {text:'Real-time AI-powered dashboards',score:16}]},
+      { text:'How are errors and exceptions in your workflows handled?', options:[
+        {text:'Discovered by customers or randomly',score:0},{text:'Staff check periodically',score:4},
+        {text:'Alerts/notifications set up manually',score:8},{text:'Automated monitoring with alerts',score:12},
+        {text:'AI detects and self-corrects issues',score:16}]},
+      { text:"How much of your team's time is spent on low-value, repetitive tasks?", options:[
+        {text:'More than 60% of their day',score:0},{text:'40–60% of their day',score:4},
+        {text:'20–40% of their day',score:8},{text:'Less than 20%',score:12},
+        {text:'Under 10% — mostly strategic work',score:16}]},
+      { text:'How do you manage document creation (quotes, contracts, reports)?', options:[
+        {text:'All done from scratch manually',score:0},{text:'Templates exist but manually filled',score:4},
+        {text:'Partially automated with some tools',score:8},{text:'Auto-generated from system data',score:12},
+        {text:'AI drafts, reviews, and sends documents',score:16}]}
+    ]},
+  { id:'sales', icon:'📈', title:'Sales & Lead Management', desc:'How you attract, qualify, and convert prospects.',
+    questions:[
+      { text:'How do you currently qualify and prioritise incoming leads?', options:[
+        {text:'No formal process — gut feel',score:0},{text:'Basic scoring by hand',score:4},
+        {text:'CRM tags and pipeline stages',score:8},{text:'Automated scoring with triggers',score:12},
+        {text:'AI-powered qualification in real-time',score:16}]},
+      { text:'What happens when a lead comes in outside business hours?', options:[
+        {text:'Nothing until next business day',score:0},{text:'Auto-reply email sent',score:4},
+        {text:'Chatbot collects basic info',score:8},{text:'AI agent qualifies and books a call',score:12},
+        {text:'Full AI front desk — handles and converts',score:16}]},
+      { text:"How do you follow up with prospects who don't convert immediately?", options:[
+        {text:"Rarely — we forget or don't have time",score:0},{text:'Ad hoc emails from sales staff',score:4},
+        {text:'Scheduled email sequences',score:8},{text:'Automated multi-channel sequences',score:12},
+        {text:'AI-personalised follow-up per prospect',score:16}]},
+      { text:'How well do you understand why deals are won or lost?', options:[
+        {text:"We don't track this at all",score:0},{text:'We know roughly but no formal analysis',score:4},
+        {text:'CRM has basic win/loss data',score:8},{text:'Regular review with structured analysis',score:12},
+        {text:'AI analyses patterns and suggests improvements',score:16}]},
+      { text:'How personalised is your outreach and proposals?', options:[
+        {text:'Generic — same message to everyone',score:0},{text:'We customise the name/company manually',score:4},
+        {text:'Segmented by industry or persona',score:8},{text:'Personalised based on CRM data',score:12},
+        {text:'AI generates personalised messaging per prospect',score:16}]}
+    ]},
+  { id:'customer', icon:'💬', title:'Customer Experience', desc:'How you serve, retain, and delight your customers.',
+    questions:[
+      { text:'How do customers get support or answers to their questions?', options:[
+        {text:'Only phone/email, slow response times',score:0},{text:'Email with FAQ page',score:4},
+        {text:'Live chat or basic chatbot on site',score:8},{text:'AI chatbot handles most queries 24/7',score:12},
+        {text:'Omnichannel AI (chat, voice, email, SMS)',score:16}]},
+      { text:'How do you collect and act on customer feedback?', options:[
+        {text:"We don't collect feedback formally",score:0},{text:'Occasional surveys sent manually',score:4},
+        {text:'Regular surveys with basic reporting',score:8},{text:'Automated feedback with trend analysis',score:12},
+        {text:'AI sentiment analysis across all touchpoints',score:16}]},
+      { text:'How personalised is your customer communication post-sale?', options:[
+        {text:'Same emails sent to everyone',score:0},{text:'Segmented by product/service type',score:4},
+        {text:'Personalised based on purchase history',score:8},{text:'Behaviour-triggered personalised journeys',score:12},
+        {text:'AI-driven hyper-personalised experiences',score:16}]},
+      { text:'How do you handle customer onboarding after a sale?', options:[
+        {text:'Ad hoc — depends on the staff member',score:0},{text:'A welcome email is sent',score:4},
+        {text:'Structured onboarding checklist/process',score:8},{text:'Automated onboarding sequence',score:12},
+        {text:'AI-guided onboarding adapts to each customer',score:16}]},
+      { text:'How proactively do you identify at-risk customers before they churn?', options:[
+        {text:'We find out when they cancel',score:0},{text:'Gut feel from account managers',score:4},
+        {text:'Manual check-in calls scheduled',score:8},{text:'Engagement tracking with alerts',score:12},
+        {text:'AI predicts churn and triggers interventions',score:16}]}
+    ]},
+  { id:'marketing', icon:'📣', title:'Marketing & Content', desc:'How you generate awareness, content, and inbound leads.',
+    questions:[
+      { text:'How do you produce marketing content (blogs, social, emails)?', options:[
+        {text:'Rarely — we have no content strategy',score:0},{text:'Manually when we have time',score:4},
+        {text:'Regular content but fully manual',score:8},{text:'AI assists with drafts and ideation',score:12},
+        {text:'AI-powered content pipeline, mostly automated',score:16}]},
+      { text:'How do you decide what marketing campaigns to run or where to invest?', options:[
+        {text:'Instinct and past habit',score:0},{text:'Basic channel metrics reviewed occasionally',score:4},
+        {text:'Regular analytics review',score:8},{text:'Data-driven with A/B testing',score:12},
+        {text:'AI recommends campaigns based on performance data',score:16}]},
+      { text:'How do you handle lead nurturing through email or ads?', options:[
+        {text:"We don't have nurture sequences",score:0},{text:'Occasional newsletters only',score:4},
+        {text:'Email sequences for new leads',score:8},{text:'Multi-step nurture with segmentation',score:12},
+        {text:'AI-orchestrated cross-channel nurture journeys',score:16}]},
+      { text:'How well do you track which channels actually drive revenue?', options:[
+        {text:'We have no tracking in place',score:0},{text:'We know our traffic sources roughly',score:4},
+        {text:'UTMs and basic conversion tracking',score:8},{text:'Multi-touch attribution model',score:12},
+        {text:'AI-powered revenue attribution across channels',score:16}]},
+      { text:'How do you repurpose content across channels?', options:[
+        {text:"We don't repurpose — each piece is one-off",score:0},{text:'Occasionally repost manually',score:4},
+        {text:'Some cross-posting with minor edits',score:8},{text:'Structured repurposing workflow',score:12},
+        {text:'AI reformats and distributes automatically',score:16}]}
+    ]},
+  { id:'strategy', icon:'🧠', title:'Strategy & AI Readiness', desc:"Your team's awareness, data infrastructure, and adoption readiness.",
+    questions:[
+      { text:"How would you describe your team's current comfort level with AI tools?", options:[
+        {text:'Skeptical or unaware of AI tools',score:0},{text:"Curious but haven't tried much",score:4},
+        {text:'A few people use AI tools occasionally',score:8},{text:'AI tools used regularly across the team',score:12},
+        {text:'AI-first culture — embedded in all processes',score:16}]},
+      { text:'How is your business data currently stored and organised?', options:[
+        {text:'Scattered — emails, spreadsheets, paper files',score:0},{text:'Spreadsheets with some structure',score:4},
+        {text:'CRM or database but not well-maintained',score:8},{text:'Clean, organised CRM/database',score:12},
+        {text:'Structured data infrastructure ready for AI',score:16}]},
+      { text:'Do you have a defined strategy or roadmap for AI adoption?', options:[
+        {text:'No strategy — reactive to trends',score:0},{text:"We've discussed it informally",score:4},
+        {text:'Some initiatives but no formal plan',score:8},{text:'Documented roadmap in progress',score:12},
+        {text:'Clear AI strategy with KPIs and ownership',score:16}]},
+      { text:'How well protected is your business data (security, backups, compliance)?', options:[
+        {text:"We haven't thought seriously about this",score:0},{text:'Basic passwords and some backups',score:4},
+        {text:'Standard security measures in place',score:8},{text:'Regular audits and documented policies',score:12},
+        {text:'Enterprise-grade security and full compliance',score:16}]},
+      { text:'How do you currently measure ROI on technology investments?', options:[
+        {text:"We don't formally track ROI on tech",score:0},{text:"Rough sense of whether it's working",score:4},
+        {text:'Basic metrics tracked manually',score:8},{text:'Defined KPIs reviewed quarterly',score:12},
+        {text:'AI-assisted ROI modelling and forecasting',score:16}]}
+    ]}
+];
+
+let state = { currentStep:null, currentCat:0, answers:{}, bizInfo:{} };
+
+function startAudit() {
+  document.getElementById('heroSection').style.display='none';
+  document.getElementById('progressWrap').style.display='block';
+  goToStep(0);
+}
+
+function goToStep(step, catOverride) {
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('loaderWrap').classList.remove('active');
+  document.getElementById('successWrap').classList.remove('active');
+  if (step===0) {
+    document.getElementById('step-0').classList.add('active');
+    state.currentStep=0; updateProgress(1,7,14);
+  } else if (step===1||step==='questions') {
+    state.currentStep=1;
+    state.currentCat=catOverride!==undefined?catOverride:(step===1?0:state.currentCat);
+    renderCategory(state.currentCat);
+    document.getElementById('step-questions').classList.add('active');
+    updateProgress(2+state.currentCat,7,Math.round(((2+state.currentCat)/7)*100));
+  } else if (step==='review') {
+    state.currentStep='review'; renderReview();
+    document.getElementById('step-review').classList.add('active'); updateProgress(7,7,90);
+  }
+}
+
+function updateProgress(step,total,pct) {
+  document.getElementById('progressLabel').textContent=`Step ${step} of ${total}`;
+  document.getElementById('progressPct').textContent=`${pct}%`;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('headerStatus').textContent=`Step ${step} of ${total}`;
+}
+
+function renderCategory(catIdx) {
+  const cat=CATEGORIES[catIdx];
+  document.getElementById('qStepNum').textContent=`Step ${String(catIdx+2).padStart(2,'0')} — Category ${catIdx+1} of 5`;
+  document.getElementById('qStepTitle').textContent=cat.title;
+  document.getElementById('qStepDesc').textContent=cat.desc;
+  document.getElementById('catNav').innerHTML=CATEGORIES.map((c,i)=>{
+    const done=isCategoryComplete(i),cur=i===catIdx;
+    return `<button class="cat-nav-btn ${cur?'current':''} ${done&&!cur?'complete':''}" onclick="jumpToCategory(${i})">${c.icon}</button>`;
+  }).join('');
+  const levels=['○○○○','●○○○','●●○○','●●●○','●●●●'];
+  document.getElementById('questionContainer').innerHTML=cat.questions.map((q,qIdx)=>{
+    const key=`${cat.id}_${qIdx}`;
+    return `<div class="question-block">
+      <div class="q-num">Q${qIdx+1} / 5</div>
+      <div class="q-text">${q.text}</div>
+      <div class="q-options">${q.options.map((opt,oIdx)=>
+        `<div class="q-option ${state.answers[key]===opt.score?'selected':''}" onclick="selectAnswer('${cat.id}',${qIdx},${opt.score},this)">
+          <div class="q-radio"></div><span>${opt.text}</span><span class="q-level">${levels[oIdx]}</span>
+        </div>`).join('')}</div></div>`;
+  }).join('');
+  document.getElementById('btnPrevCat').style.display=catIdx===0?'none':'inline-flex';
+  document.getElementById('btnNextCat').textContent=catIdx===CATEGORIES.length-1?'Review & Submit →':'Next Category →';
+}
+
+function selectAnswer(catId,qIdx,score,el) {
+  state.answers[`${catId}_${qIdx}`]=score;
+  el.closest('.q-options').querySelectorAll('.q-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function jumpToCategory(idx){state.currentCat=idx;renderCategory(idx);}
+function isCategoryComplete(catIdx){return CATEGORIES[catIdx].questions.every((_,qIdx)=>state.answers[`${CATEGORIES[catIdx].id}_${qIdx}`]!==undefined);}
+function nextCategory(){
+  if(state.currentCat<CATEGORIES.length-1){state.currentCat++;renderCategory(state.currentCat);window.scrollTo(0,0);updateProgress(2+state.currentCat,7,Math.round(((2+state.currentCat)/7)*100));}
+  else{goToStep('review');window.scrollTo(0,0);}
+}
+function prevCategory(){
+  if(state.currentCat>0){state.currentCat--;renderCategory(state.currentCat);window.scrollTo(0,0);}else goToStep(0);
+}
+function getCategoryScore(catIdx){return CATEGORIES[catIdx].questions.reduce((t,_,qIdx)=>t+(state.answers[`${CATEGORIES[catIdx].id}_${qIdx}`]||0),0);}
+function getCategoryMax(){return 80;}
+function calcTotalScore(){return Math.round((CATEGORIES.reduce((t,_,i)=>t+getCategoryScore(i),0)/(CATEGORIES.length*getCategoryMax()))*100);}
+function getTier(score){
+  if(score<25)return 'AI Beginner';
+  if(score<50)return 'Developing';
+  if(score<75)return 'AI-Capable';
+  return 'AI-Advanced';
+}
+
+function renderReview(){
+  document.getElementById('reviewGrid').innerHTML=CATEGORIES.map((cat,i)=>{
+    const s=getCategoryScore(i),pct=Math.round((s/getCategoryMax())*100),done=isCategoryComplete(i);
+    return `<div class="review-card"><div class="review-left"><div class="review-icon">${cat.icon}</div><div><div class="review-title">${cat.title}</div><div class="review-sub">${s}/${getCategoryMax()} pts · ${pct}%</div></div></div><div class="review-badge ${done?'badge-done':'badge-pending'}">${done?'✓ Complete':'Incomplete'}</div></div>`;
+  }).join('');
+}
+
+async function submitAudit() {
+  const email = document.getElementById('userEmail').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('userEmail').focus();
+    document.getElementById('userEmail').style.borderColor='var(--red)';
+    return;
+  }
+  document.getElementById('userEmail').style.borderColor='';
+
+  // Build payload
+  const score = calcTotalScore();
+  const tier = getTier(score);
+
+  // Build answers summary string for Claude
+  const answersSummary = CATEGORIES.map(cat =>
+    cat.questions.map((q,qIdx)=>{
+      const ans = state.answers[`${cat.id}_${qIdx}`]||0;
+      const opt = q.options.find(o=>o.score===ans);
+      return `[${cat.title}] ${q.text.substring(0,55)}... → ${opt?opt.text:'Not answered'} (${ans}/16)`;
+    }).join('\n')
+  ).join('\n');
+
+  // Build category % scores
+  const scores = {};
+  CATEGORIES.forEach(cat=>{
+    const s=getCategoryScore(CATEGORIES.indexOf(cat));
+    scores[cat.id]=Math.round((s/getCategoryMax())*100);
+  });
+
+  const payload = {
+    email,
+    bizName: document.getElementById('bizName').value||'Your Business',
+    bizIndustry: document.getElementById('bizIndustry').value||'General Business',
+    bizSize: document.getElementById('bizSize').value||'Not specified',
+    bizRevenue: document.getElementById('bizRevenue').value||'Not specified',
+    bizChallenge: document.getElementById('bizChallenge').value||'Not specified',
+    totalScore: score,
+    tier,
+    scores,
+    answersSummary
+  };
+
+  // Show loader
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('loaderWrap').classList.add('active');
+  updateProgress(7,7,99);
+
+  const msgs=[
+    ['Submitting your audit','Sending your answers securely...'],
+    ['Queuing AI analysis','Our engine is reviewing your responses...'],
+    ['Almost there','Your report is being prepared...']
+  ];
+  let mIdx=0;
+  const interval=setInterval(()=>{
+    if(mIdx<msgs.length){
+      document.getElementById('loaderStatus').textContent=msgs[mIdx][0];
+      document.getElementById('loaderText').textContent=msgs[mIdx][1];
+      mIdx++;
+    }
+  },1500);
+
+  try {
+    const response = await fetch(WEBHOOK_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ body: payload })
+    });
+    clearInterval(interval);
+    // Show success regardless of response (n8n processes async)
+    document.getElementById('loaderWrap').classList.remove('active');
+    document.getElementById('successWrap').classList.add('active');
+    document.getElementById('successEmail').textContent=email;
+    updateProgress(7,7,100);
+    window.scrollTo(0,0);
+  } catch(err) {
+    clearInterval(interval);
+    // Still show success — n8n may have received it even if response failed
+    document.getElementById('loaderWrap').classList.remove('active');
+    document.getElementById('successWrap').classList.add('active');
+    document.getElementById('successEmail').textContent=email;
+    updateProgress(7,7,100);
+    window.scrollTo(0,0);
+  }
+}
+</script>
+</body>
+</html>
